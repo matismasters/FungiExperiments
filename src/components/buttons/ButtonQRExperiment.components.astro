@@ -1,0 +1,28 @@
+---
+import QRCode from "../QRCode.astro";
+const {title, idQR } = Astro.props;
+
+---
+
+<div class="container_ButtonQRExperiment">
+  <QRCode class="img-qr_ButtonQRExperiment" text={`${idQR}`} />
+  <button class="btn-experiment_ButtonQRExperiment">{title}</button>
+</div>
+
+<style>
+  .container_ButtonQRExperiment {
+    display: flex;
+    height: 100px;
+    max-width: 500px;
+    width: 100%;
+  }
+  .img-qr_ButtonQRExperiment {
+    height: 100%;
+    width: 100px;
+    background-color: white;
+  }
+  .btn-experiment_ButtonQRExperiment {
+    width: 100%;
+    height: 100%;
+  }
+</style>

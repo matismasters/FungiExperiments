@@ -1,30 +1,28 @@
 ---
-import Layout from "../layouts/Layout.astro";
-import experimentsMocks from "../mocks/experiments-mocks.js";
+import Layout from "../../layouts/Layout.astro";
+import ButtonQRExperiment from "../../components/buttons/ButtonQRExperiment.components.astro";
+import experimentsMocks from "../../mocks/experiments-mocks.js";
 ---
 
-<Layout title="Inicio">
+<Layout title="Experiments">
   <main>
-    <h1>Aplicaccion</h1>
-    <div style="display: flex; flex-direction: column;">
-      <button id="takeFoto-btn">Sacar Foto</button>
-      <button id="createExperiment-btn">Nuevo Experimento </button>
-      <button id="showExperiment-btn">Ver Experimentos </button>
-    </div>
+    <button id="btn-return">Regresar</button>
+    <h2>Experimentos</h2>
+    {
+      experimentsMocks?.map((experiment) => (
+        <ButtonQRExperiment idQR={experiment.id} title={experiment.title} />
+      ))
+    }
   </main>
 </Layout>
 
-<script type="module">
-  document
-    .getElementById("showExperiment-btn")
-    .addEventListener("click", ()=> window.location.href = "/experiments");
-
-  document
-    .getElementById("createExperiment-btn")
+<script>
+    document
+    .getElementById("btn-return")
     .addEventListener("click", createExperiment);
 
   function createExperiment() {
-    window.location.href = "/experiments";
+    window.location.href = '/';
   }
 </script>
 
@@ -91,14 +89,5 @@ import experimentsMocks from "../mocks/experiments-mocks.js";
     grid-template-columns: repeat(auto-fit, minmax(24ch, 1fr));
     gap: 2rem;
     padding: 0;
-  }
-  button{
-    padding: 20px;
-    font-size: 18px;
-    background-color: #0000ff;
-    color: white;
-    border-radius: 50px;
-    border: none;
-    margin: 10px;
   }
 </style>

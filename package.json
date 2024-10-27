@@ -12,6 +12,8 @@
   "dependencies": {
     "@astrojs/node": "^8.3.4",
     "astro": "^4.16.7",
-    "pg": "^8.13.1"
+    "hongos": "file:",
+    "pg": "^8.13.1",
+    "qrcode": "^1.5.4"
   }
 }

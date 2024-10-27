@@ -1,0 +1,23 @@
+---
+import QRCode from "qrcode";
+
+const { text } = Astro.props;
+
+let qrCodeUrl = "";
+
+try {
+  qrCodeUrl = await QRCode.toDataURL(text);
+} catch (err) {
+  console.error(err);
+}
+---
+
+<>
+  {
+    qrCodeUrl ? (
+      <img src={qrCodeUrl} alt="Código QR" />
+    ) : (
+      <p>Error al generar el código QR.</p>
+    )
+  }
+</>
