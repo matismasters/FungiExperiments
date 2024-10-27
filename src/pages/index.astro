@@ -5,7 +5,7 @@ import experimentsMocks from "../mocks/experiments-mocks.js";
 
 <Layout title="Inicio">
   <main>
-    <h1>Aplicaccion</h1>
+    <h1>Aplicacion</h1>
     <div style="display: flex; flex-direction: column;">
       <button id="takeFoto-btn">Sacar Foto</button>
       <button id="createExperiment-btn">Nuevo Experimento </button>
@@ -23,6 +23,14 @@ import experimentsMocks from "../mocks/experiments-mocks.js";
     .getElementById("createExperiment-btn")
     .addEventListener("click", createExperiment);
 
+  document.getElementById("takeFoto-btn").
+  addEventListener("click",
+  redirectToScanPhoto
+  )
+
+  function redirectToScanPhoto(){
+    window.location.href="/scan-photo"
+  }
   function createExperiment() {
     window.location.href = "/experiments";
   }

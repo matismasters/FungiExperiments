@@ -1,0 +1,80 @@
+---
+import Layout from "../../layouts/Layout.astro";
+
+---
+
+
+<Layout title="Inicio">
+   
+      <div class="container">
+        <h1>Scan QR Codes</h1>
+       
+        <div id="my-qr-reader"></div>
+       
+      </div>
+     
+</Layout>
+
+<script is:inline src="https://unpkg.com/html5-qrcode"></script>
+
+<script type="module" defer>
+  function domReady(fn) {
+      if (
+        document.readyState === "complete" ||
+        document.readyState === "interactive"
+      ) {
+        setTimeout(fn, 1000);
+      } else {
+        document.addEventListener("DOMContentLoaded", fn);
+      }
+    }
+
+    domReady(() => {
+      // If found you qr code
+      function onScanSuccess(decodeText, decodeResult) {
+        alert("You Qr is : " + decodeText, decodeResult);
+      }
+
+      let htmlscanner = new Html5QrcodeScanner("my-qr-reader", {
+        fps: 10,
+        qrbos: 250,
+      });
+
+      htmlscanner.render(onScanSuccess);
+    });
+  
+
+ 
+</script>
+
+<style is:inline>
+    .container{
+      display: flex;
+      justify-content: center;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1{
+      color:white
+      
+    }
+    
+    video{
+      width: 100% !important;
+    }
+   
+    span{
+      width: 100%;
+      color: white;
+    }
+   
+    #my-qr-reader__dashboard_section_csr{
+      display: flex !important;
+      flex-direction: column !important;
+    }
+    .html5-qrcode-element{
+      font-size: xx-large;
+      width: 100% !important;
+    }
+
+</style>
