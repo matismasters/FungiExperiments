@@ -1,6 +1,8 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import experimentsMocks from "../mocks/experiments-mocks.js";
+import { supabase } from "../db/supabase";
+
+const {data,error} = await supabase.from("experiments").select('*');
 ---
 
 <Layout title="Inicio">
@@ -11,6 +13,15 @@ import experimentsMocks from "../mocks/experiments-mocks.js";
       <button id="createExperiment-btn">Nuevo Experimento </button>
       <button id="showExperiment-btn">Ver Experimentos </button>
     </div>
+    {
+      (
+        <ul>
+          {data?.map((entry) => (
+            <li>{entry.title}</li>
+          ))}
+        </ul>
+      )
+    }
   </main>
 </Layout>
 
