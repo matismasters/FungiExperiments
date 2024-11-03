@@ -1,7 +1,8 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import ButtonQRExperiment from "../../components/buttons/ButtonQRExperiment.components.astro";
-import experimentsMocks from "../../mocks/experiments-mocks.js";
+import { supabase } from "../../db/supabase";
+const { data, error } = await supabase.from("experimentos_nico").select("*");
 ---
 
 <Layout title="Experiments">
@@ -9,20 +10,22 @@ import experimentsMocks from "../../mocks/experiments-mocks.js";
     <button id="btn-return">Regresar</button>
     <h2>Experimentos</h2>
     {
-      experimentsMocks?.map((experiment) => (
-        <ButtonQRExperiment idQR={experiment.id} title={experiment.title} />
+      data?.map((experiment) => (
+        <ButtonQRExperiment
+          idQR={experiment.exp_id}
+        />
       ))
     }
   </main>
 </Layout>
 
 <script>
-    document
+  document
     .getElementById("btn-return")
     .addEventListener("click", createExperiment);
 
   function createExperiment() {
-    window.location.href = '/';
+    window.location.href = "/";
   }
 </script>
 

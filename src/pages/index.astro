@@ -2,7 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 import { supabase } from "../db/supabase";
 
-const {data,error} = await supabase.from("experimentos_nico").select('*').eq("exp_id",1);
+const {data,error} = await supabase.from("experimentos_nico").select('*');
 
 
 ---
