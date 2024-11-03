@@ -2,26 +2,25 @@
 import Layout from "../layouts/Layout.astro";
 import { supabase } from "../db/supabase";
 
-const {data,error} = await supabase.from("experiments").select('*');
+const {data,error} = await supabase.from("experimentos_nico").select('*').eq("exp_id",1);
+
+
 ---
 
 <Layout title="Inicio">
   <main>
+    {
+      
+        <h1>{data[0].exp_id}</h1>
+      
+    }
     <h1>Aplicacion</h1>
     <div style="display: flex; flex-direction: column;">
       <button id="takeFoto-btn">Sacar Foto</button>
       <button id="createExperiment-btn">Nuevo Experimento </button>
       <button id="showExperiment-btn">Ver Experimentos </button>
     </div>
-    {
-      (
-        <ul>
-          {data?.map((entry) => (
-            <li>{entry.title}</li>
-          ))}
-        </ul>
-      )
-    }
+    
   </main>
 </Layout>
 
