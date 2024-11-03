@@ -6,14 +6,16 @@ import Layout from "../layouts/Layout.astro";
   <main>
     <h1>Aplicacion</h1>
     <div style="display: flex; flex-direction: column;">
-      <button id="takeFoto-btn">Sacar Foto</button>
+      <a href="/scan-photo"><button id="takeFoto-btn">Sacar Foto</button></a>
+      <a href="/experiments"><button id="showExperiment-btn">Ver Experimentos </button></a>
       <button id="createExperiment-btn">Nuevo Experimento </button>
-      <button id="showExperiment-btn">Ver Experimentos </button>
     </div>
   </main>
 </Layout>
 
-<script type="module">
+
+<script>  
+
   document
     .getElementById("showExperiment-btn")
     .addEventListener("click", () => (window.location.href = "/experiments"));
@@ -22,20 +24,11 @@ import Layout from "../layouts/Layout.astro";
     .getElementById("createExperiment-btn")
     .addEventListener("click", createExperiment);
 
-  document
-    .getElementById("takeFoto-btn")
-    .addEventListener("click", redirectToScanPhoto);
 
-  function redirectToScanPhoto() {
-    window.location.href = "/scan-photo";
-  }
   function dateNowFormatExperiment() {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, "0"); // Sumar 1 porque los meses empiezan en 0
-    const day = String(today.getDate()).padStart(2, "0");
-
-    return `${year}-${month}-${day}`;
+    const date = new Date();
+    const parsed = date.toISOString().split('T')[0]
+    return parsed;
   }
   async function createExperiment() {
     const res = await fetch("http://localhost:4321/api/experiments", {
@@ -116,6 +109,7 @@ import Layout from "../layouts/Layout.astro";
     padding: 0;
   }
   button {
+    width: 200px;
     padding: 20px;
     font-size: 18px;
     background-color: #0000ff;

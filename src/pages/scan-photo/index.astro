@@ -17,16 +17,13 @@ import Layout from "../../layouts/Layout.astro";
 
 <script is:inline src="https://unpkg.com/html5-qrcode"></script>
 
-<script type="module" defer>
+<script is:inline>
+  
 
-  //gets teh experiment with the given ID
+  //gets the experiment with the given ID
   const checkIfExperimentExists=async(id)=>{
     let data = await fetch(`${window.origin}/api/experiments?id=${id}`)
-    //todo, proceed if the experiment exists
-    if (data.status == 200){
-      return true
-    }
-    return false
+    return data.status == 200
   }
 
   const domReady=(fn)=> {
@@ -41,15 +38,21 @@ import Layout from "../../layouts/Layout.astro";
     }
 
     domReady(() => {
+      let scanning = false
       // If found you qr code
       async function onScanSuccess(decodeText, decodeResult) {
+        if(scanning)return
+
+        scanning = true
+        //check if the experiment exists, if so TODO
         const exists = await checkIfExperimentExists(decodeText)
+        
         if(exists){
           alert("existe")
-          return
-        }
-        alert("NO existe")
-
+        }else{
+          alert("NO existe")
+        } 
+        scanning = false
       }
 
       let htmlscanner = new Html5QrcodeScanner("my-qr-reader", {

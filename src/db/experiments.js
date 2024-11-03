@@ -3,7 +3,7 @@ import { createNotFoundError } from "./errors.js";
 
 //GET
 export const getExperiment = async (id) => {
-  let { data, error } = id ? await oneExperiment(id) : await allExperiment();
+  let { data, error } = id ? await oneExperiment(id) : await allExperiments();
 
   if (error) {
     return { data, error };
@@ -14,13 +14,13 @@ export const getExperiment = async (id) => {
   return { data, error };
 };
 
-function oneExperiment(id) {
+const oneExperiment = (id) => {
   return supabase.from("experimentos_nico").select("*").eq("exp_id", id);
-}
+};
 
-function allExperiment() {
+const allExperiments = () => {
   return supabase.from("experimentos_nico").select("*");
-}
+};
 
 //POST
 export const postExperiment = async (experiment) => {

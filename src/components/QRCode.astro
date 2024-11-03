@@ -21,3 +21,17 @@ try {
     )
   }
 </>
+
+<script>
+    document.querySelectorAll("#QrIdCode").forEach((htmlQR) => {
+    htmlQR.addEventListener("click", imprimirImagen);
+  });
+
+  function imprimirImagen(htmlQR) {
+    const img = htmlQR.target;
+    const imgWindow = window.open("", "_blank");
+    imgWindow.document.write(`<img src="${img.src}" style="width:100%;" />`);
+    imgWindow.document.close();
+    imgWindow.print();
+  }
+</script>

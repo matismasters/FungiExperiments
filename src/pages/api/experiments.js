@@ -6,9 +6,10 @@ export async function GET({ request }) {
   const id = url.searchParams.get("id");
 
   const { data, error } = await getExperiment(id);
+
   if (error) {
     return new Response(JSON.stringify(error.message), {
-      status: 400,
+      status: 404,
     });
   }
 
@@ -19,7 +20,7 @@ export async function GET({ request }) {
 }
 
 export async function POST({ request }) {
-  if (request.headers.get("content-type") === "application/json") {
+  try {
     const body = await request.json();
 
     const { data, error } = await postExperiment(body);
@@ -31,12 +32,12 @@ export async function POST({ request }) {
     }
 
     return new Response(JSON.stringify(data), {
-      status: 200,
+      status: 201,
       headers: { "Content-Type": "application/json" },
     });
+  } catch (e) {
+    return new Response("Cannot parse the JSON", {
+      status: 400,
+    });
   }
-
-  return new Response(JSON.stringify("Not found header"), {
-    status: 400,
-  });
 }
