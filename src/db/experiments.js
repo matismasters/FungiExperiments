@@ -7,6 +7,10 @@ export const getExperiment = async (id) => {
     .select("*")
     .eq("exp_id", id);
 
+  if (error) {
+    return { data, error };
+  }
+
   if (data.length == 0) error = createNotFoundError();
 
   return { data, error };

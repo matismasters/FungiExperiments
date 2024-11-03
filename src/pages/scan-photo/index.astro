@@ -24,10 +24,8 @@ import Layout from "../../layouts/Layout.astro";
     let data = await fetch(`${window.origin}/api/experiments?id=${id}`)
     //todo, proceed if the experiment exists
     if (data.status == 200){
-      alert("si")
       return true
     }
-    alert("no")
     return false
   }
 
@@ -44,8 +42,13 @@ import Layout from "../../layouts/Layout.astro";
 
     domReady(() => {
       // If found you qr code
-      function onScanSuccess(decodeText, decodeResult) {
-        const exists = checkIfExperimentExists(decodeText)
+      async function onScanSuccess(decodeText, decodeResult) {
+        const exists = await checkIfExperimentExists(decodeText)
+        if(exists){
+          alert("existe")
+          return
+        }
+        alert("NO existe")
 
       }
 

@@ -8,7 +8,7 @@ export async function GET({ request }) {
   const { data, error } = await getExperiment(id);
   if (error) {
     return new Response(JSON.stringify(error.message), {
-      status: error.status,
+      status: 400,
     });
   }
 
