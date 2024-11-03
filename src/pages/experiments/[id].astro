@@ -1,46 +1,16 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import ButtonQRExperiment from "../../components/buttons/ButtonQRExperiment.components.astro";
-import { supabase } from "../../db/supabase";
-const { data, error } = await supabase.from("experimentos_nico").select("*");
+const { id } = Astro.params;
 ---
 
 <Layout title="Experiments">
   <main>
-    <button id="btn-return">Regresar</button>
-    <h2>Experimentos</h2>
-    <div class="container-all-qr-code">
-      {
-        data?.map((experiment) => (
-          <ButtonQRExperiment
-            idQR={experiment.exp_id}
-            title={`Experimento ${experiment.exp_id}`}
-          />
-        ))
-      }
-    </div>
+    <h2>Fotos de <br/> Experimento {id}</h2>
   </main>
 </Layout>
 
 <script>
-  document
-    .getElementById("btn-return")
-    .addEventListener("click", returnToMainPage);
-  document.querySelectorAll("#QrIdCode").forEach((htmlQR) => {
-    htmlQR.addEventListener("click", imprimirImagen);
-  });
-
-  function imprimirImagen(htmlQR) {
-    const img = htmlQR.target;
-    const imgWindow = window.open("", "_blank");
-    imgWindow.document.write(`<img src="${img.src}" style="width:100%;" />`);
-    imgWindow.document.close();
-    imgWindow.print();
-  }
-
-  function returnToMainPage() {
-    window.location.href = "/";
-  }
+  
 </script>
 
 <style>
@@ -56,28 +26,6 @@ const { data, error } = await supabase.from("experimentos_nico").select("*");
     color: white;
     font-size: 20px;
     tdne-height: 1.6;
-  }
-
-  .container-all-qr-code {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 15px;
-  }
-
-  .hidden {
-    display: none;
-  }
-
-  .expand-qr {
-    position: fixed;
-    top: 0;
-    left: 0;
-    display: flex;
-    align-items: center;
-    background-color: #00000012;
-    width: 100%;
-    height: 100%;
   }
 
   .astro-a {

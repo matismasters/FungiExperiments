@@ -1,47 +1,52 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import { supabase } from "../db/supabase";
-
-const {data,error} = await supabase.from("experimentos_nico").select('*');
-
-
 ---
 
 <Layout title="Inicio">
   <main>
-    {
-      
-        <h1>{data[0].exp_id}</h1>
-      
-    }
     <h1>Aplicacion</h1>
     <div style="display: flex; flex-direction: column;">
       <button id="takeFoto-btn">Sacar Foto</button>
       <button id="createExperiment-btn">Nuevo Experimento </button>
       <button id="showExperiment-btn">Ver Experimentos </button>
     </div>
-    
   </main>
 </Layout>
 
 <script type="module">
   document
     .getElementById("showExperiment-btn")
-    .addEventListener("click", ()=> window.location.href = "/experiments");
+    .addEventListener("click", () => (window.location.href = "/experiments"));
 
   document
     .getElementById("createExperiment-btn")
     .addEventListener("click", createExperiment);
 
-  document.getElementById("takeFoto-btn").
-  addEventListener("click",
-  redirectToScanPhoto
-  )
+  document
+    .getElementById("takeFoto-btn")
+    .addEventListener("click", redirectToScanPhoto);
 
-  function redirectToScanPhoto(){
-    window.location.href="/scan-photo"
+  function redirectToScanPhoto() {
+    window.location.href = "/scan-photo";
   }
-  function createExperiment() {
+  function dateNowFormatExperiment() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0"); // Sumar 1 porque los meses empiezan en 0
+    const day = String(today.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  }
+  async function createExperiment() {
+    const res = await fetch("http://localhost:4321/api/experiments", {
+      method: "POST",
+      headers: {
+        accept: "application/json",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ exp_date: dateNowFormatExperiment() }),
+    });
+    console.log(res);
     window.location.href = "/experiments";
   }
 </script>
@@ -110,7 +115,7 @@ const {data,error} = await supabase.from("experimentos_nico").select('*');
     gap: 2rem;
     padding: 0;
   }
-  button{
+  button {
     padding: 20px;
     font-size: 18px;
     background-color: #0000ff;

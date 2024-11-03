@@ -1,12 +1,13 @@
 ---
 import QRCode from "../QRCode.astro";
-const {title, idQR } = Astro.props;
-
+const { title, idQR } = Astro.props;
 ---
 
 <div class="container_ButtonQRExperiment">
   <QRCode class="img-qr_ButtonQRExperiment" text={`${idQR}`} />
-  <button class="btn-experiment_ButtonQRExperiment">{title}</button>
+  <a class="btn-experiment_ButtonQRExperiment" href={`http://localhost:4321/experiments/${idQR}`}>
+    <button class="btn-experiment_ButtonQRExperiment">{title}</button>
+  </a>
 </div>
 
 <style>

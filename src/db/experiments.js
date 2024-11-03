@@ -1,11 +1,9 @@
 import { supabase } from "./supabase.js";
 import { createNotFoundError } from "./errors.js";
 
+//GET
 export const getExperiment = async (id) => {
-  let { data, error } = await supabase
-    .from("experimentos_nico")
-    .select("*")
-    .eq("exp_id", id);
+  let { data, error } = id ? await oneExperiment(id) : await allExperiment();
 
   if (error) {
     return { data, error };
@@ -13,5 +11,22 @@ export const getExperiment = async (id) => {
 
   if (data.length == 0) error = createNotFoundError();
 
+  return { data, error };
+};
+
+function oneExperiment(id) {
+  return supabase.from("experimentos_nico").select("*").eq("exp_id", id);
+}
+
+function allExperiment() {
+  return supabase.from("experimentos_nico").select("*");
+}
+
+//POST
+export const postExperiment = async (experiment) => {
+  let { data, error } = await supabase
+    .from("experimentos_nico")
+    .upsert({ exp_date: experiment?.exp_date })
+    .select();
   return { data, error };
 };
