@@ -1,0 +1,12 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import FormAddPhoto from "../../components/forms/FormAddPhoto.astro"
+
+const experimentID = Astro.url.searchParams.get('id') || '';
+
+---
+<Layout title="Inicio">
+    <main>
+        <FormAddPhoto firstPhoto={true}/>
+    </main>
+</Layout>
