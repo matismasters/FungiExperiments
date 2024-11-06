@@ -22,8 +22,13 @@ import Layout from "../../layouts/Layout.astro";
 
   //gets the experiment with the given ID
   const checkIfExperimentExists=async(id)=>{
-    let data = await fetch(`${window.origin}/api/experiments?id=${id}`)
-    return data.status == 200
+    const data = await fetch(`${window.origin}/api/experiments?id=${id}`)
+    if(data.status!=200){
+      return null
+    }
+    const parsed = await data.json()
+  
+    return parsed[0]
   }
 
   const domReady=(fn)=> {
@@ -46,9 +51,8 @@ import Layout from "../../layouts/Layout.astro";
         scanning = true
         //check if the experiment exists, if so TODO
         const exists = await checkIfExperimentExists(decodeText)
-        
         if(exists){
-          alert("existe")
+          window.location.href=`/new-photo?id=${exists.exp_id}`
         }else{
           alert("NO existe")
         } 
