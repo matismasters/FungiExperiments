@@ -30,3 +30,14 @@ export const postExperiment = async (experiment) => {
     .select();
   return { data, error };
 };
+
+export const postPhotoToExperiment = async (payload) => {
+  const { experimentId, photo } = payload;
+  //add the photo
+  const { data, error } = await supabase
+    .from("iteraciones_nico")
+    .upsert({ id_experiment: experimentId, iter_photo: photo });
+  if (error) {
+    return { data, error };
+  }
+};

@@ -1,8 +1,13 @@
 ---
+import { supabase } from "../../db/supabase";
 import Layout from "../../layouts/Layout.astro";
-const experimentID = Astro.url.searchParams.get('id') || '';
 
-const firstPhoto = true
+
+/*Check to see if the experiment already has substratums or not, we only select the id and limit the response 
+to 1 since we are not interested in the data per se*/
+const experimentID = Astro.url.searchParams.get('id') || '';
+const {data,error} = await supabase.from("sustratos_experimentos_nico").select('exp_id').eq("exp_id",parseInt(experimentID)).limit(1)
+const firstPhoto = data?.length==0
 
 ---
 
@@ -14,11 +19,10 @@ const firstPhoto = true
     <img class="show-img"/>
 
 
-    <!--We only allow adding the substratums if we are taking the first photo-->
+    <!--We only allow adding the substratums if the experiment doesnt have any-->
     {firstPhoto && 
         <div class="substratum-section"/>
         
-
         <button class="button-add-substratum">Agregar Sustrato</button>
     }
 
@@ -30,7 +34,7 @@ const firstPhoto = true
 </Layout>
 
 <script type="module">
-    //Get all the 
+    //Get all the substratums to load the select options
     const resSubstratums = await fetch(`${window.origin}/api/substratums`)
     const substratums = await resSubstratums.json() 
     //Img element used for displaying the photo taken
@@ -38,32 +42,44 @@ const firstPhoto = true
     const input = document.querySelector(".input-image")
     const buttonAddSubstratum = document.querySelector(".button-add-substratum")
     const buttonSendData = document.querySelector(".send-data")
+    let imgBinary;
 
     
-    input.addEventListener("change",handleImage)    
-    showImage.addEventListener("load",(e)=>{
-        e.target.style.opacity = 1
-    })
-    buttonAddSubstratum.addEventListener("click",addSubstratumSelectionToDom)
-    buttonSendData.addEventListener("click",checkPercentagesAre100)
+    input.addEventListener("change", async() => imgBinary = await readAndReturnImage())  //load the file into imgBinary when a photo is taken
+    showImage.addEventListener("load",(e)=>e.target.style.opacity = 1) //add opacity to the image to "animate" it
+    buttonAddSubstratum?.addEventListener("click",addSubstratumSelectionToDom) //create select with options and append it to the dom
+    buttonSendData.addEventListener("click",sendData)
 
-    function handleImage(){
-        const currentFile = input.files[input.files.length-1]
-        loadImageToBackground(currentFile,showImage)
-        const reader = new FileReader()
-        const blobImage = new Blob([currentFile])
-        reader.onloadend = ()=>{
-            console.log(reader.result)
-        }
-        reader.readAsArrayBuffer(blobImage)
+    function readAndReturnImage(){
+        return new Promise((res,rej)=>{
+            try{
+                const currentFile = input.files[input.files.length-1]
+                if(!currentFile){
+                    rej("There isnt a file selected")
+                }
+                loadImageToBackground(currentFile,showImage)
+                const reader = new FileReader()
+                reader.onloadend = ()=>{
+                    res(reader.result)
+                }
+                reader.readAsDataURL(currentFile)
+            }catch(e){
+                rej(e)
+            }
+        })
     }
     function loadImageToBackground(currentFile,imgElement){
         const src = URL.createObjectURL(currentFile)
         imgElement.src = src
     }
-    
-    function checkPercentagesAre100(){
+    //only run this in case that we are on an experiment that needs adding the substratums
+    function percentagesSum100(){
+        //if there isnt a substratum selection, that means that this experiment doesn't need to add substratums, therefore we don't check the sum
+        const substratumSection = document.querySelector(".substratum-section")
+        if(!substratumSection)return true
+
         const allInputs = document.querySelectorAll(".substratum-number")  
+    
         let sum = 0
 
         allInputs.forEach((n)=>{
@@ -72,6 +88,46 @@ const firstPhoto = true
       
         return sum == 100
     }
+    async function sendData(){
+        if(!percentagesSum100()){
+            alert("Los porcentajes no suman 100%")
+            return
+        }
+     
+        const urlParams = new URLSearchParams(window.location.search);
+        const experimentId = urlParams.get("id")
+
+        //create payload to post to the server
+        const payload = {
+            exp_id:experimentId,
+            photo:imgBinary,
+            substratums:[]
+        }
+        
+        //load all the substratum data to the payload
+        const substratums = document.querySelectorAll(".select-substratum")
+        const substratumPercentages = document.querySelectorAll(".substratum-number")
+
+        for(let i=0;i<substratums.length;i++){
+            const toAdd = {
+                substratum_id:substratums[i].value,
+                percentage: substratumPercentages[i].value
+            }
+            payload.substratums.push(toAdd)
+        }
+
+        console.log(payload)
+        const res = await fetch(`${window.origin}/api/iterations`,{
+            method:"POST",
+            body:JSON.stringify(payload)
+        })
+       
+        if(res.status == 201){
+            alert("TODO JOYA")
+        }else{
+            alert('algo raro sucede')
+        }
+    }   
 
     //adds the html element to insert the substratum quantity
     function addSubstratumSelectionToDom(){
@@ -89,9 +145,10 @@ const firstPhoto = true
 
         //Create the select and load with all the options that came from the API
         const select = document.createElement("select")
+        select.className = "select-substratum"
         substratums.forEach(s=>{
             const option = document.createElement("option")
-            option.value = s.value
+            option.value = s.id
             option.textContent = s.name
             select.appendChild(option)
         })

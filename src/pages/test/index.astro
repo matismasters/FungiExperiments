@@ -1,0 +1,10 @@
+---
+import { supabase } from "../../db/supabase"
+
+const {data,error} = await supabase.from("iteraciones_nico").select("*")
+---
+
+{data.map(d=>
+    <img src={d.iter_photo} alt=""/>
+)}
+
