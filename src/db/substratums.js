@@ -13,14 +13,9 @@ export const linkSubstratumsToExperiment = async ({ exp_id, substratums }) => {
     return { data: null, error: null };
   }
 
-  const toInsert = substratums.map((s) => ({
-    exp_id: exp_id,
-    substratum_id: s.substratum_id,
-    percentage: s.percentage,
-  }));
   const { data, error } = await supabase
     .from("sustratos_experimentos_nico")
-    .upsert(toInsert)
+    .upsert(substratums)
     .eq("exp_id", parseInt(exp_id));
 
   return { data, error };
