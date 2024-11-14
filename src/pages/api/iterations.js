@@ -1,18 +1,26 @@
-import { uploadExperimentIterationPhoto } from "../../db/iterations";
+import {
+  uploadExperimentIterationData,
+  uploadExperimentIterationPhoto,
+} from "../../db/iterations";
+import { uploadImage } from "../../db/buckets";
 import { linkSubstratumsToExperiment } from "../../db/substratums";
 
 export async function POST({ request }) {
   const payload = await request.json();
 
-  let { data, error } = await uploadExperimentIterationPhoto(payload);
-  if (error) {
-    return new Response(JSON.stringify(error), { status: 400 });
-  }
+  const prom3 = uploadImage(payload);
+  const prom1 = uploadExperimentIterationData(payload);
+  const prom2 = linkSubstratumsToExperiment(payload);
 
-  //add the substratums to the experiment if there is a need to
-  const { data: d, error: e } = await linkSubstratumsToExperiment(payload);
-  if (e) {
-    return new Response(JSON.stringify(e), { status: 400 });
+  const [res1, res2, res3] = await Promise.all([prom1, prom2, prom3]);
+
+  if (res1.error || res2.error || res3.error) {
+    return new Response(
+      JSON.stringify(res1.error || res2.error || res3.error),
+      {
+        status: 400,
+      }
+    );
   }
 
   return new Response(JSON.stringify("ok"), { status: 201 });

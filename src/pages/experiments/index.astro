@@ -1,8 +1,9 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import ButtonQRExperiment from "../../components/buttons/ButtonQRExperiment.components.astro";
-import { supabase } from "../../db/supabase";
-const { data, error } = await supabase.from("experimentos_nico").select("*");
+import { getExperiment } from "../../db/experiments";
+
+const { data, error } = await getExperiment()
 ---
 
 <Layout title="Experiments">

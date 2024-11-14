@@ -11,10 +11,15 @@
   },
   "dependencies": {
     "@astrojs/node": "^8.3.4",
+    "@prisma/client": "^5.22.0",
     "@supabase/supabase-js": "^2.45.6",
     "astro": "^4.16.7",
+    "base64-arraybuffer": "^1.0.2",
     "hongos": "file:",
     "pg": "^8.13.1",
     "qrcode": "^1.5.4"
+  },
+  "devDependencies": {
+    "prisma": "^5.22.0"
   }
 }

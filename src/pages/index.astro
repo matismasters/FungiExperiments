@@ -31,13 +31,13 @@ import Layout from "../layouts/Layout.astro";
     return parsed;
   }
   async function createExperiment() {
-    const res = await fetch("http://localhost:4321/api/experiments", {
+    const res = await fetch(`${window.origin}/api/experiments`, {
       method: "POST",
       headers: {
         accept: "application/json",
         "content-type": "application/json",
       },
-      body: JSON.stringify({ exp_date: dateNowFormatExperiment() }),
+      body: JSON.stringify({ exp_fecha: dateNowFormatExperiment() }),
     });
     console.log(res);
     window.location.href = "/experiments";

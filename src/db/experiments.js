@@ -15,18 +15,18 @@ export const getExperiment = async (id) => {
 };
 
 const oneExperiment = (id) => {
-  return supabase.from("experimentos_nico").select("*").eq("exp_id", id);
+  return supabase.from("experimentos").select("*").eq("exp_id", id);
 };
 
 const allExperiments = () => {
-  return supabase.from("experimentos_nico").select("*");
+  return supabase.from("experimentos").select("*");
 };
 
 //POST
 export const postExperiment = async (experiment) => {
   let { data, error } = await supabase
-    .from("experimentos_nico")
-    .upsert({ exp_date: experiment?.exp_date })
+    .from("experimentos")
+    .upsert({ exp_fecha: experiment?.exp_fecha })
     .select();
   return { data, error };
 };
