@@ -1,0 +1,298 @@
+---
+import Layout from "../layouts/Layout.astro"
+import {experimentHasSubstratums} from "../db/substratums.js"
+
+const experimentID = Astro.url.searchParams.get('id') || '';
+//check if the experiment already has substratums or not, in case it doesnt we allow the user to insert them
+const {data:hasSubstratums, error} = await experimentHasSubstratums(experimentID)
+const doesNotHaveSubstratums = !hasSubstratums 
+---
+<Layout title="Add photos">
+    <div class="form-container">
+            <label for="input-image" class="label-upload-image">Sacar foto</label>
+            <img class="show-img"/>
+
+            {doesNotHaveSubstratums && (
+                <div class="substratum-section"/>
+                <button class="button-add-substratum">Agregar Sustrato</button>
+            )}
+            <input type="checkbox" id="finish-experiment-checkbox" class="finish-experiment-checkbox"/>
+            <label for="finish-experiment-checkbox">Terminar el experimento </label>
+            <div class="response-info" style="color: white;"></div>
+            <button class="send-data">Subir Datos</button>
+            <input class="input-image" id="input-image" type="file"  accept="image/*" capture style="visibility: hidden;"/>
+
+    </div>
+</Layout>
+
+
+<script type="module">
+    //Get all the substratums to load the select options
+    const resSubstratums = await fetch(`${window.origin}/api/substratums`)
+    const substratums = await resSubstratums.json() 
+    const inputFile = document.querySelector(".input-image")
+    const buttonAddSubstratum = document.querySelector(".button-add-substratum")
+    const buttonSendData = document.querySelector(".send-data")
+
+    inputFile.addEventListener("change",handleImageChange) //load the file into base64Foto when a photo is taken
+    buttonAddSubstratum?.addEventListener("click",addSubstratumElementToDom) //create select with options and append it to the dom
+    buttonSendData.addEventListener("click",sendData)
+
+    //payload to send to the sv
+    const payload = {
+        exp_id:getExperimentId(),
+        base64Foto:null,
+        iter_foto:null,
+        exp_terminado:null,
+        sustratos:null
+    }
+
+    function handleImageChange(){
+        try{
+            const currentFile = inputFile.files[inputFile.files.length-1]
+            const reader = new FileReader()
+            reader.onloadend = ()=>{
+                loadImageToBackground(currentFile)
+                loadFileName(currentFile.name)
+                payload.base64Foto=reader.result
+            }
+            reader.readAsDataURL(currentFile)
+        }catch(e){
+          console.error("error al cargar la imagen")
+        }
+    }
+  
+    function loadImageToBackground(currentFile){
+        const src = URL.createObjectURL(currentFile)
+        document.querySelector(".show-img").src = src
+    }
+
+    async function sendData(){
+        loadPayload()
+        clearResponseInfo()
+        if(!payload.base64Foto){
+            alert("No se ha elegido ninguna foto")
+            return
+        }
+        if(!percentagesSum100()){
+            alert("Los porcentajes no suman 100%")
+            return
+        }
+        if(substratumsRepeated()){
+            alert("Hay sustratos repetidos")
+            return
+        }
+        try{
+            //upload the data to sql
+            const res = await fetch(`${window.origin}/api/iterations`,{
+                method:"POST",
+                body:JSON.stringify(payload)
+            })
+            const {message} = await res.json()
+            document.querySelector(".response-info").textContent=message
+
+        }catch(e){
+        }
+    }  
+    function percentagesSum100(){
+        const substratumSection = document.querySelector(".substratum-section")
+        //if there isnt a substratum section, that means that this experiment doesn't need to add substratums
+        //therefore we don't check the sum
+        if(!substratumSection) return true
+
+        const allPercentages = document.querySelectorAll(".substratum-number") 
+        let sum = 0 
+        allPercentages.forEach((n)=>{
+            sum+= n.valueAsNumber
+        })
+      
+        return sum == 100
+    }
+    function getSubstratumsArray(){
+        //load all the substratum data to the payload
+        const substratums = document.querySelectorAll(".select-substratum")
+        const substratumPercentages = document.querySelectorAll(".substratum-number")
+
+        const substratumsArr = []
+        //load the payload with all the substratums selected
+        for(let i=0;i<substratums.length;i++){
+            const toAdd = {
+                exp_id:getExperimentId(),
+                sustrato_id:substratums[i].value,
+                porcentaje: substratumPercentages[i].value
+            }
+            substratumsArr.push(toAdd)
+        }
+        return substratumsArr
+    }
+    function getExperimentId(){
+        return new URLSearchParams(window.location.search).get("id")
+    }
+    function getExperimentFinished(){
+        return document.querySelector(".finish-experiment-checkbox").checked
+    }
+    function loadFileName(name){
+        let timeStamp = Date.now().toString()
+        const nameWithTimestamp = timeStamp+=name
+        payload.iter_foto = nameWithTimestamp
+    }
+    function loadPayload(){
+        payload.sustratos = getSubstratumsArray()    
+        payload.exp_terminado = getExperimentFinished()
+    }
+    function clearResponseInfo(){
+        document.querySelector(".response-info").textContent = ""
+    }
+    function substratumsRepeated(){
+        const map = new Map()
+        for(const sustrato of payload.sustratos){
+            const isRepeated = map.get(Number(sustrato.sustrato_id))
+            if(isRepeated){
+                return true
+            }
+            map.set(Number(sustrato.sustrato_id),sustrato)
+        }
+        return false
+    }
+    //adds the html element to insert the substratum quantity
+    function addSubstratumElementToDom(){
+        if(substratums?.length ==0){
+            alert("No se han podido cargar los sustratos")
+            return
+        }
+        //main div that will be added to the dom, its a row that contains a column and a delete button
+        const main = document.createElement("div")
+        main.className = "substratum-container-row"
+
+        //main column
+        const mainCol = document.createElement("div")
+        mainCol.className = "substratum-container-col"
+
+        //Create the select and load with all the options that came from the API
+        const select = document.createElement("select")
+        select.className = "select-substratum"
+        substratums.forEach(s=>{
+            const option = document.createElement("option")
+            option.value = s.id
+            option.textContent = s.nombre
+            select.appendChild(option)
+        })
+        mainCol.appendChild(select)
+
+        //percentage of that substratum
+        const inputNumber = document.createElement("input")
+        inputNumber.className="substratum-number"
+        inputNumber.type = "number"
+        inputNumber.placeholder ="Porcentaje"
+        mainCol.appendChild(inputNumber)
+
+        //add the whole column to the main div
+        main.appendChild(mainCol)
+
+        //button to remove the element
+        const removeButton = document.createElement("button")
+        removeButton.className = "button-remove-substratum"
+        removeButton.textContent="X"
+        removeButton.addEventListener("click",()=>main.remove())
+        main.appendChild(removeButton)
+        //append it to the dom
+        document.querySelector(".substratum-section").appendChild(main)
+    }
+</script>
+
+<style is:inline> 
+    .content{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        transition: all 0.2s ease-in;
+        overflow: hidden;
+    }
+    .label-upload-image{
+        color: black;
+        cursor: pointer;
+        padding: 20px;
+        background-color: wheat;
+        border-radius: 10px;
+        font-size: xx-large;
+        font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .form-container{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+    }
+    img{
+        max-width: 50%;
+       
+    }
+
+    .substratum-section{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+    .substratum-container-row{
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+       
+    }
+    .button-remove-substratum{
+        font-size: xx-large;
+        background-color: wheat;
+        color: rgb(233, 69, 69);
+        border-width: 0px;
+        cursor: pointer;
+    }
+    .substratum-container-col{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+    }
+    .substratum-container-col input{
+        width: 200px;
+        padding: 0px;
+        box-sizing: border-box;
+        font-size: x-large;
+    }.substratum-container-col select{
+        width: 200px;
+        font-size: x-large;
+    }
+    .button-add-substratum{
+        background-color: wheat;
+        color: rgb(0, 0, 0);
+        border-radius: 10px;
+        border-width: 0px;
+        cursor: pointer;
+        font-size: large;
+        padding: 10px;
+        margin: 10px;
+        font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .send-data{
+        background-color: wheat;
+        font-size: xx-large;
+        cursor: pointer;
+        border-width: 0px;
+        border-radius: 10px;
+    }
+    .response-info{
+        font-size: xx-large;
+    }
+   
+    label{
+        color:white;
+    }
+
+</style>

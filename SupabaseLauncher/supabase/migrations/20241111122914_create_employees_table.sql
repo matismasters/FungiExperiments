@@ -1,14 +1,15 @@
 create table
 experimentos (
 exp_id serial primary key,
-exp_fecha date default now()
+exp_fecha date default now(),
+exp_terminado boolean default false
 );
 
 create table
 experimento_iteraciones (
 iter_id serial primary key,
 exp_id int,
-iter_foto varchar(50) not null,
+iter_foto varchar(80) not null,
 iter_fecha date default now(),
 foreign key (exp_id) references experimentos(exp_id)
 );

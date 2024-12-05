@@ -43,20 +43,19 @@ import Layout from "../../layouts/Layout.astro";
     }
 
     domReady(() => {
-      let scanning = false
+
       // If found you qr code
       async function onScanSuccess(decodeText, decodeResult) {
         if(scanning)return
-
-        scanning = true
-        //check if the experiment exists, if so TODO
-        const exists = await checkIfExperimentExists(decodeText)
-        if(exists){
-          window.location.href=`/new-photo?id=${exists.exp_id}`
-        }else{
-          alert("NO existe")
-        } 
-        scanning = false
+        try{
+          const toNumber = Number(decodeText)
+          if(isNaN(toNumber)){
+            return
+          }
+          window.location.href=`/new-photo?id=${toNumber}`
+        }catch(e){
+        }
+   
       }
 
       let htmlscanner = new Html5QrcodeScanner("my-qr-reader", {
