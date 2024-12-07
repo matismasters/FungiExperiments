@@ -18,19 +18,6 @@ import Layout from "../../layouts/Layout.astro";
 <script is:inline src="https://unpkg.com/html5-qrcode"></script>
 
 <script is:inline>
-  
-
-  //gets the experiment with the given ID
-  const checkIfExperimentExists=async(id)=>{
-    const data = await fetch(`${window.origin}/api/experiments?id=${id}`)
-    if(data.status!=200){
-      return null
-    }
-    const parsed = await data.json()
-  
-    return parsed[0]
-  }
-
   const domReady=(fn)=> {
       if (
         document.readyState === "complete" ||
@@ -43,10 +30,8 @@ import Layout from "../../layouts/Layout.astro";
     }
 
     domReady(() => {
-
       // If found you qr code
       async function onScanSuccess(decodeText, decodeResult) {
-        if(scanning)return
         try{
           const toNumber = Number(decodeText)
           if(isNaN(toNumber)){
@@ -54,8 +39,8 @@ import Layout from "../../layouts/Layout.astro";
           }
           window.location.href=`/new-photo?id=${toNumber}`
         }catch(e){
+          console.log(e)
         }
-   
       }
 
       let htmlscanner = new Html5QrcodeScanner("my-qr-reader", {
