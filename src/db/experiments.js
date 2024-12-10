@@ -28,15 +28,6 @@ export const postExperiment = async (experiment) => {
   return { data, error };
 };
 
-export const postPhotoToExperiment = async (payload) => {
-  const { experimentId, photo } = payload;
-  //add the photo
-  const { data, error } = await supabase
-    .from("iteraciones_nico")
-    .upsert({ id_experiment: experimentId, iter_photo: photo });
-
-  return { data, error };
-};
 //In charge of finishing the experiment if the payload contains that instruction
 export const finishExperiment = async (payload) => {
   const { exp_id, exp_terminado: userWantsToFinish } = payload;
@@ -51,4 +42,39 @@ export const finishExperiment = async (payload) => {
     .eq("exp_id", parseInt(exp_id));
 
   return { data, error };
+};
+
+export const changeToFructification = async ({
+  exp_id,
+  iter_observaciones,
+  iter_numero_hongos,
+}) => {
+  if (!iter_observaciones || !iter_numero_hongos) {
+    return { data: null, error: null };
+  }
+  //if we get the signal to change to fructification
+  const { data, error } = await supabase
+    .from("experimentos")
+    .update({ exp_fructificacion: true })
+    .eq("exp_id", parseInt(exp_id));
+
+  return { data, error };
+};
+
+export const isInFructification = async (exp_id) => {
+  const { data, error } = await supabase
+    .from("experimentos")
+    .select("exp_fructificacion")
+    .eq("exp_id", parseInt(exp_id));
+
+  return { data: data[0]?.exp_fructificacion, error };
+};
+
+export const experimentIsAlreadyFinished = async (exp_id) => {
+  const { data: exp, error: expError } = await getExperiment(exp_id);
+  if (expError) return true;
+
+  if (exp[0].exp_terminado) return true;
+
+  return false;
 };

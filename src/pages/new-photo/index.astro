@@ -7,7 +7,7 @@ const experimentID = Astro.url.searchParams.get('id') || '';
 
 const {data:experiment,error:err} = await getExperiment(experimentID)
 const experimentDoesNotExist = err
-const experimentFinished = experiment[0]?.exp_terminado
+const experimentFinished = experiment ? experiment[0]?.exp_terminado : null
 ---
 
 {

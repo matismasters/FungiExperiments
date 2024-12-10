@@ -1,0 +1,54 @@
+---
+const {isFructification} = Astro.props
+---
+
+<div class="fructification-container">  
+    {isFructification&&(   
+    <div id="fructification-div" class="fructification-mandatory">               
+        <textarea placeholder="Ingresa las observaciones" maxlength="100" id="fructification-observations"></textarea>
+        <input type="number" id="fungi-number" placeholder="Numero de hongos">      
+    </div>   
+    )}
+                  
+    {!isFructification && (
+    <input type="checkbox" id="change-to-fructification" class="change-to-fructification">
+    <label for="change-to-fructification">Cambiar a fructificacion</label>
+    <div id="fructification-div" style="visibility:hidden;">
+        <textarea  placeholder="Ingresa las observaciones" maxlength="100" id="fructification-observations"></textarea>
+        <input type="number" id="fungi-number" placeholder="Numero de hongos">
+    </div>
+    )}
+</div>
+
+<script type="module">
+    const checkBox = document.querySelector("#change-to-fructification")
+    const fructificationDiv = document.querySelector("#fructification-div")
+
+    checkBox && checkBox.addEventListener("click",()=>{
+        const isChecked = checkBox.checked
+        if(isChecked){
+            fructificationDiv.style.visibility = "visible"
+        }else{
+            fructificationDiv.style.visibility = "hidden"
+        }
+    })
+</script>
+<style>
+    #fructification-div{
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
+    }
+    .fructification-container{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    #fructification-div > textarea{
+        font-size: xx-large;
+    }
+    #fructification-div > input{
+        font-size: xx-large;
+    }
+</style>

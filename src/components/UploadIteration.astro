@@ -1,11 +1,16 @@
 ---
 import Layout from "../layouts/Layout.astro"
 import {experimentHasSubstratums} from "../db/substratums.js"
+import { isInFructification } from "../db/experiments";
+import FructificationForm from "./FructificationForm.astro";
 
 const experimentID = Astro.url.searchParams.get('id') || '';
 //check if the experiment already has substratums or not, in case it doesnt we allow the user to insert them
 const {data:hasSubstratums, error} = await experimentHasSubstratums(experimentID)
-const doesNotHaveSubstratums = !hasSubstratums 
+const doesNotHaveSubstratums = !hasSubstratums    
+
+const {data:isInFructificationResponse,error:errorFructification} = await isInFructification(experimentID)
+
 ---
 <Layout title="Add photos">
     <div class="form-container">
@@ -18,6 +23,9 @@ const doesNotHaveSubstratums = !hasSubstratums
             )}
             <input type="checkbox" id="finish-experiment-checkbox" class="finish-experiment-checkbox"/>
             <label for="finish-experiment-checkbox">Terminar el experimento </label>
+
+            <FructificationForm isFructification={isInFructificationResponse}/>
+
             <div class="response-info" style="color: white;"></div>
             <button class="send-data">Subir Datos</button>
             <input class="input-image" id="input-image" type="file"  accept="image/*" capture style="visibility: hidden;"/>
@@ -38,13 +46,15 @@ const doesNotHaveSubstratums = !hasSubstratums
     buttonAddSubstratum?.addEventListener("click",addSubstratumElementToDom) //create select with options and append it to the dom
     buttonSendData.addEventListener("click",sendData)
 
-    //payload to send to the sv
+    //payload to send to the backend
     const payload = {
-        exp_id:getExperimentId(),
-        base64Foto:null,
-        iter_foto:null,
-        exp_terminado:null,
-        sustratos:null
+        exp_id:getExperimentId(),   //Current experiment ID
+        exp_terminado:null,         //Sends the signal to finish the experiment
+        base64Foto:null,            //Actual image data that will be stored, not as base64, but as a file
+        iter_foto:null,             //Name of the image
+        sustratos:null,             //Array of the substratums chosen + the percentage amount
+        iter_observaciones:null,    //Observations of the experiment
+        iter_numero_hongos:null     //Number of fungi observed
     }
 
     function handleImageChange(){
@@ -80,6 +90,10 @@ const doesNotHaveSubstratums = !hasSubstratums
         }
         if(substratumsRepeated()){
             alert("Hay sustratos repetidos")
+            return
+        }
+        if(!fructificationPayloadIsOkay()){
+            alert("Tienes que llenar los 2 campos de la fructificacion")
             return
         }
         try{
@@ -128,9 +142,19 @@ const doesNotHaveSubstratums = !hasSubstratums
     function getExperimentId(){
         return new URLSearchParams(window.location.search).get("id")
     }
-    function getExperimentFinished(){
-        return document.querySelector(".finish-experiment-checkbox").checked
+    function fructificationPayloadIsOkay(){
+        //check we send either BOTH FIELDS or NONE
+        const fructificationObservations =  payload.iter_observaciones
+        const fructificationFungiNumber =  payload.iter_numero_hongos
+
+        if(!fructificationFungiNumber && !fructificationObservations){
+            return true
+        }
+
+        const bothHaveToBeFilled = fructificationFungiNumber && fructificationObservations!=""
+        return bothHaveToBeFilled
     }
+
     function loadFileName(name){
         let timeStamp = Date.now().toString()
         const nameWithTimestamp = timeStamp+=name
@@ -138,7 +162,13 @@ const doesNotHaveSubstratums = !hasSubstratums
     }
     function loadPayload(){
         payload.sustratos = getSubstratumsArray()    
-        payload.exp_terminado = getExperimentFinished()
+        payload.exp_terminado = document.querySelector(".finish-experiment-checkbox").checked
+
+        const iter_numero_hongos = document.querySelector("#fungi-number").value
+        payload.iter_numero_hongos = iter_numero_hongos?iter_numero_hongos:null
+   
+        const iter_observaciones = document.querySelector("#fructification-observations").value
+        payload.iter_observaciones = iter_observaciones? iter_observaciones :null
     }
     function clearResponseInfo(){
         document.querySelector(".response-info").textContent = ""
@@ -157,7 +187,7 @@ const doesNotHaveSubstratums = !hasSubstratums
     //adds the html element to insert the substratum quantity
     function addSubstratumElementToDom(){
         if(substratums?.length ==0){
-            alert("No se han podido cargar los sustratos")
+            alert("No se han podido cargar los sustratos desde la base de datos")
             return
         }
         //main div that will be added to the dom, its a row that contains a column and a delete button
