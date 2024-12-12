@@ -6,7 +6,8 @@ const {isFructification} = Astro.props
     {isFructification&&(   
     <div id="fructification-div" class="fructification-mandatory">               
         <textarea placeholder="Ingresa las observaciones" maxlength="100" id="fructification-observations"></textarea>
-        <input type="number" id="fungi-number" placeholder="Numero de hongos">      
+        <input type="number" id="fungi-number" placeholder="Numero de hongos">
+        <input type="number" id="fructification-weight" placeholder="Peso de la cosecha">
     </div>   
     )}
                   
@@ -14,11 +15,13 @@ const {isFructification} = Astro.props
     <input type="checkbox" id="change-to-fructification" class="change-to-fructification">
     <label for="change-to-fructification">Cambiar a fructificacion</label>
     <div id="fructification-div" style="visibility:hidden;">
-        <textarea  placeholder="Ingresa las observaciones" maxlength="100" id="fructification-observations"></textarea>
+        <textarea placeholder="Ingresa las observaciones" maxlength="100" id="fructification-observations"></textarea>
         <input type="number" id="fungi-number" placeholder="Numero de hongos">
+        <input type="number" id="fructification-weight" placeholder="Peso de la cosecha">
     </div>
     )}
 </div>
+
 
 <script type="module">
     const checkBox = document.querySelector("#change-to-fructification")

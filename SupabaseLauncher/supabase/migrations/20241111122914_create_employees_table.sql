@@ -4,6 +4,12 @@ exp_id serial primary key,
 exp_fecha date default now(),
 exp_fructificacion boolean default false,
 exp_terminado boolean default false
+
+/*
+
+exp_init-fructificacion-fecha date default null,
+
+*/
 );
 
 create table
@@ -14,6 +20,13 @@ iter_foto varchar(80) not null,
 iter_fecha date default now(),
 iter_observaciones varchar(100),
 iter_numero_hongos int,
+
+/*
+    New Add
+iter_fructification_weight int,
+
+*/
+
 foreign key (exp_id) references experimentos(exp_id)
 );
 

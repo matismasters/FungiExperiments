@@ -48,13 +48,15 @@ const {data:isInFructificationResponse,error:errorFructification} = await isInFr
 
     //payload to send to the backend
     const payload = {
-        exp_id:getExperimentId(),   //Current experiment ID
-        exp_terminado:null,         //Sends the signal to finish the experiment
-        base64Foto:null,            //Actual image data that will be stored, not as base64, but as a file
-        iter_foto:null,             //Name of the image
-        sustratos:null,             //Array of the substratums chosen + the percentage amount
-        iter_observaciones:null,    //Observations of the experiment
-        iter_numero_hongos:null     //Number of fungi observed
+        exp_id:getExperimentId(),       //Current experiment ID
+        exp_terminado:null,             //Sends the signal to finish the experiment
+        exp_fructificacion:false,       //Current fructification type
+        base64Foto:null,                //Actual image data that will be stored, not as base64, but as a file
+        iter_foto:null,                 //Name of the image
+        sustratos:null,                 //Array of the substratums chosen + the percentage amount
+        iter_observaciones:null,        //Observations of the experiment
+        iter_numero_hongos:null,        //Number of fungi observed
+        iter_fructification_weight:null //Weight of the experiment
     }
 
     function handleImageChange(){
@@ -92,10 +94,12 @@ const {data:isInFructificationResponse,error:errorFructification} = await isInFr
             alert("Hay sustratos repetidos")
             return
         }
+        /*
         if(!fructificationPayloadIsOkay()){
-            alert("Tienes que llenar los 2 campos de la fructificacion")
+            alert("Tienes que llenar los 3 campos de la fructificacion")
             return
         }
+            */
         try{
             //upload the data to sql
             const res = await fetch(`${window.origin}/api/iterations`,{
@@ -146,13 +150,15 @@ const {data:isInFructificationResponse,error:errorFructification} = await isInFr
         //check we send either BOTH FIELDS or NONE
         const fructificationObservations =  payload.iter_observaciones
         const fructificationFungiNumber =  payload.iter_numero_hongos
+        const fructificationWeight =  payload.iter_fructification_weight
+        
 
-        if(!fructificationFungiNumber && !fructificationObservations){
+        if(fructificationFungiNumber && fructificationObservations && fructificationWeight){
             return true
         }
-
-        const bothHaveToBeFilled = fructificationFungiNumber && fructificationObservations!=""
-        return bothHaveToBeFilled
+        
+        //const bothHaveToBeFilled = fructificationFungiNumber && fructificationObservations && fructificationWeight!=""
+        return false
     }
 
     function loadFileName(name){
@@ -161,6 +167,7 @@ const {data:isInFructificationResponse,error:errorFructification} = await isInFr
         payload.iter_foto = nameWithTimestamp
     }
     function loadPayload(){
+
         payload.sustratos = getSubstratumsArray()    
         payload.exp_terminado = document.querySelector(".finish-experiment-checkbox").checked
 
@@ -169,6 +176,9 @@ const {data:isInFructificationResponse,error:errorFructification} = await isInFr
    
         const iter_observaciones = document.querySelector("#fructification-observations").value
         payload.iter_observaciones = iter_observaciones? iter_observaciones :null
+
+        const iter_fructification_weight = document.querySelector("#fructification-weight").value
+        payload.iter_fructification_weight = iter_fructification_weight? iter_fructification_weight :null
     }
     function clearResponseInfo(){
         document.querySelector(".response-info").textContent = ""

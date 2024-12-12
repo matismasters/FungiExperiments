@@ -5,6 +5,7 @@ export const uploadExperimentIterationData = async ({
   iter_foto,
   iter_observaciones,
   iter_numero_hongos,
+  iter_fructification_weight
 }) => {
   const { data, error } = await supabase
     .from("experimento_iteraciones")
@@ -13,6 +14,7 @@ export const uploadExperimentIterationData = async ({
       iter_foto: iter_foto,
       iter_observaciones: iter_observaciones,
       iter_numero_hongos: iter_numero_hongos,
+      iter_fructification_weight:iter_fructification_weight
     });
 
   return { data, error };
