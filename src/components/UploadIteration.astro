@@ -55,8 +55,8 @@ const {data:isInFructificationResponse,error:errorFructification} = await isInFr
         iter_foto:null,                 //Name of the image
         sustratos:null,                 //Array of the substratums chosen + the percentage amount
         iter_observaciones:null,        //Observations of the experiment
-        iter_numero_hongos:null,        //Number of fungi observed
-        iter_fructification_weight:null //Weight of the experiment
+        iter_numero_hongos:null,        //Number of fungi observed   
+        iter_fructification_weight:null //Weight of the experiment        
     }
 
     function handleImageChange(){
@@ -94,12 +94,12 @@ const {data:isInFructificationResponse,error:errorFructification} = await isInFr
             alert("Hay sustratos repetidos")
             return
         }
-        /*
+        
         if(!fructificationPayloadIsOkay()){
             alert("Tienes que llenar los 3 campos de la fructificacion")
             return
         }
-            */
+            
         try{
             //upload the data to sql
             const res = await fetch(`${window.origin}/api/iterations`,{
@@ -147,18 +147,17 @@ const {data:isInFructificationResponse,error:errorFructification} = await isInFr
         return new URLSearchParams(window.location.search).get("id")
     }
     function fructificationPayloadIsOkay(){
-        //check we send either BOTH FIELDS or NONE
+        //check if eigher all fields are either empty or fully complete 
         const fructificationObservations =  payload.iter_observaciones
         const fructificationFungiNumber =  payload.iter_numero_hongos
         const fructificationWeight =  payload.iter_fructification_weight
+        console.log(fructificationWeight)
         
+        const allEmpty = !fructificationFungiNumber && !fructificationObservations && !fructificationWeight
+       
+        const allFilled = fructificationFungiNumber && fructificationObservations!="" && fructificationWeight
 
-        if(fructificationFungiNumber && fructificationObservations && fructificationWeight){
-            return true
-        }
-        
-        //const bothHaveToBeFilled = fructificationFungiNumber && fructificationObservations && fructificationWeight!=""
-        return false
+        return allEmpty || allFilled
     }
 
     function loadFileName(name){

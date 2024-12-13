@@ -19,7 +19,9 @@ export const checkAllErrorsInIteration = async (payload) => {
 
   const fructificationDataNeededButNotProvided =
     experiment[0]?.exp_fructificacion &&
-    (!payload.iter_numero_hongos || !payload.iter_observaciones);
+    (!payload.iter_numero_hongos ||
+      !payload.iter_observaciones ||
+      !payload.iter_fructification_weight);
 
   if (fructificationDataNeededButNotProvided) {
     return "No se ha propocionado suficientes datos para la fructificacion";
