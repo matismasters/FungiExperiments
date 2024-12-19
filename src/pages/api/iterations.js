@@ -2,10 +2,7 @@ import { uploadExperimentIterationData } from "../../db/iterations";
 import { uploadImage } from "../../db/buckets";
 import { linkSubstratumsToExperiment } from "../../db/substratums";
 import { checkAllErrorsInIteration } from "./errors";
-import {
-  finishExperiment,
-  changeToFructification,
-} from "../../db/experiments";
+import { finishExperiment, changeToFructification } from "../../db/experiments";
 
 export async function POST({ request }) {
   const payload = await request.json();

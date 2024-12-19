@@ -2,7 +2,7 @@
 import Layout from "../layouts/Layout.astro"
 import {experimentHasSubstratums} from "../db/substratums.js"
 import { isInFructification } from "../db/experiments";
-import FructificationForm from "./FructificationForm.astro";
+import Form from "./Form.astro";
 
 const experimentID = Astro.url.searchParams.get('id') || '';
 //check if the experiment already has substratums or not, in case it doesnt we allow the user to insert them
@@ -21,11 +21,17 @@ const {data:isInFructificationResponse,error:errorFructification} = await isInFr
                 <div class="substratum-section"/>
                 <button class="button-add-substratum">Agregar Sustrato</button>
             )}
-            <input type="checkbox" id="finish-experiment-checkbox" class="finish-experiment-checkbox"/>
-            <label for="finish-experiment-checkbox">Terminar el experimento </label>
+            <div class="check-box-container"> 
+                <input type="checkbox" id="hasContamination">
+                <label for="hasContamination">Tiene contaminacion</label>
+            </div>
+           
+            <Form isFructification={isInFructificationResponse}/>
 
-            <FructificationForm isFructification={isInFructificationResponse}/>
-
+            <div class="check-box-container">
+                <input type="checkbox" id="finish-experiment-checkbox" class="finish-experiment-checkbox"/>
+                <label for="finish-experiment-checkbox">Terminar el experimento </label>
+            </div>
             <div class="response-info" style="color: white;"></div>
             <button class="send-data">Subir Datos</button>
             <input class="input-image" id="input-image" type="file"  accept="image/*" capture style="visibility: hidden;"/>
@@ -48,15 +54,17 @@ const {data:isInFructificationResponse,error:errorFructification} = await isInFr
 
     //payload to send to the backend
     const payload = {
-        exp_id:getExperimentId(),       //Current experiment ID
-        exp_terminado:null,             //Sends the signal to finish the experiment
-        exp_fructificacion:false,       //Current fructification type
-        base64Foto:null,                //Actual image data that will be stored, not as base64, but as a file
-        iter_foto:null,                 //Name of the image
-        sustratos:null,                 //Array of the substratums chosen + the percentage amount
-        iter_observaciones:null,        //Observations of the experiment
-        iter_numero_hongos:null,        //Number of fungi observed   
-        iter_fructification_weight:null //Weight of the experiment        
+        exp_id:getExperimentId(),           //Current experiment ID
+        exp_terminado:null,                 //Sends the signal to finish the experiment
+        exp_fructificacion:false,           //Current fructification type
+        base64Foto:null,                    //Actual image data that will be stored, not as base64, but as a file
+        iter_foto:null,                     //Name of the image
+        sustratos:null,                     //Array of the substratums chosen + the percentage amount
+        iter_observaciones:null,            //Observations of the experiment
+        iter_numero_hongos:null,            //Number of fungi observed   
+        iter_fructification_peso:null,      //Weight of the experiment   
+        iter_contaminacion:false,           //boolean to check if its contaminated
+        iter_porcentaje_colonizacion: null  //percentage of the colonization
     }
 
     function handleImageChange(){
@@ -99,6 +107,7 @@ const {data:isInFructificationResponse,error:errorFructification} = await isInFr
             alert("Tienes que llenar los 3 campos de la fructificacion")
             return
         }
+        console.log(payload)
             
         try{
             //upload the data to sql
@@ -150,12 +159,13 @@ const {data:isInFructificationResponse,error:errorFructification} = await isInFr
         //check if eigher all fields are either empty or fully complete 
         const fructificationObservations =  payload.iter_observaciones
         const fructificationFungiNumber =  payload.iter_numero_hongos
-        const fructificationWeight =  payload.iter_fructification_weight
-        console.log(fructificationWeight)
+        const fructificationWeight =  payload.iter_fructification_peso
+
         
         const allEmpty = !fructificationFungiNumber && !fructificationObservations && !fructificationWeight
        
         const allFilled = fructificationFungiNumber && fructificationObservations!="" && fructificationWeight
+
 
         return allEmpty || allFilled
     }
@@ -166,18 +176,23 @@ const {data:isInFructificationResponse,error:errorFructification} = await isInFr
         payload.iter_foto = nameWithTimestamp
     }
     function loadPayload(){
-
         payload.sustratos = getSubstratumsArray()    
         payload.exp_terminado = document.querySelector(".finish-experiment-checkbox").checked
 
-        const iter_numero_hongos = document.querySelector("#fungi-number").value
-        payload.iter_numero_hongos = iter_numero_hongos?iter_numero_hongos:null
+        const iter_numero_hongos = document.querySelector("#fungi-number")?.value
+        payload.iter_numero_hongos = iter_numero_hongos ? iter_numero_hongos: null
    
-        const iter_observaciones = document.querySelector("#fructification-observations").value
-        payload.iter_observaciones = iter_observaciones? iter_observaciones :null
+        const iter_observaciones = document.querySelector("#fructification-observations")?.value
+        payload.iter_observaciones = iter_observaciones ? iter_observaciones:null
 
-        const iter_fructification_weight = document.querySelector("#fructification-weight").value
-        payload.iter_fructification_weight = iter_fructification_weight? iter_fructification_weight :null
+        const iter_fructification_weight = document.querySelector("#fructification-weight")?.value
+        payload.iter_fructification_peso = iter_fructification_weight ? iter_fructification_weight : null 
+
+        const iter_contaminacion_checkbox = document.querySelector("#hasContamination")?.checked
+        payload.iter_contaminacion = iter_contaminacion_checkbox ? iter_contaminacion_checkbox : null
+
+        const iter_colonization_percentage = document.querySelector("#colonization-percentage")?.value
+        payload.iter_porcentaje_colonizacion = iter_colonization_percentage ?iter_colonization_percentage :null 
     }
     function clearResponseInfo(){
         document.querySelector(".response-info").textContent = ""
@@ -263,19 +278,17 @@ const {data:isInFructificationResponse,error:errorFructification} = await isInFr
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 20px;
+        gap: 10px;
     }
     img{
         max-width: 50%;
-       
     }
-
     .substratum-section{
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 10px;
+        gap: 5px;
     }
     .substratum-container-row{
         display: flex;
@@ -283,7 +296,6 @@ const {data:isInFructificationResponse,error:errorFructification} = await isInFr
         justify-content: center;
         align-items: center;
         gap: 10px;
-       
     }
     .button-remove-substratum{
         font-size: xx-large;
@@ -332,6 +344,12 @@ const {data:isInFructificationResponse,error:errorFructification} = await isInFr
    
     label{
         color:white;
+    }
+    .check-box-container{
+        font-size: large;
+    }
+    .check-box-container > input{
+        transform: scale(1.5);
     }
 
 </style>

@@ -21,9 +21,18 @@ export const checkAllErrorsInIteration = async (payload) => {
     experiment[0]?.exp_fructificacion &&
     (!payload.iter_numero_hongos ||
       !payload.iter_observaciones ||
-      !payload.iter_fructification_weight);
+      !payload.iter_fructification_peso);
 
   if (fructificationDataNeededButNotProvided) {
     return "No se ha propocionado suficientes datos para la fructificacion";
+  }
+
+  const experimentIsInColonization = experiment[0]?.exp_fructificacion == false;
+
+  const colonizationDataNotProvided =
+    experimentIsInColonization && !payload?.iter_porcentaje_colonizacion;
+
+  if (colonizationDataNotProvided) {
+    return "No se ha proporcionado datos acerca del porcentaje de colonización";
   }
 };

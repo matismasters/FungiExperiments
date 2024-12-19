@@ -12,8 +12,11 @@ const {isFructification} = Astro.props
     )}
                   
     {!isFructification && (
-    <input type="checkbox" id="change-to-fructification" class="change-to-fructification">
-    <label for="change-to-fructification">Cambiar a fructificacion</label>
+    <input type="number" placeholder="Porcentaje colonización" id="colonization-percentage">
+    <div class="check-box-container">
+        <input type="checkbox" id="change-to-fructification" class="change-to-fructification">
+        <label for="change-to-fructification">Cambiar a fructificacion</label>
+    </div>
     <div id="fructification-div" style="visibility:hidden;">
         <textarea placeholder="Ingresa las observaciones" maxlength="100" id="fructification-observations"></textarea>
         <input type="number" id="fungi-number" placeholder="Numero de hongos">
@@ -51,7 +54,8 @@ const {isFructification} = Astro.props
     #fructification-div > textarea{
         font-size: xx-large;
     }
-    #fructification-div > input{
+    input{
         font-size: xx-large;
+    
     }
 </style>
